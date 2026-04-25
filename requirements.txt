@@ -1,0 +1,21 @@
+# Core
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Detectron2 — install separately via:
+# pip install 'git+https://github.com/facebookresearch/detectron2.git'
+# (version must match your CUDA/torch combo)
+
+# Data & evaluation
+pycocotools
+opencv-python
+numpy
+matplotlib
+tqdm
+
+# Lightweight pose fallback
+mediapipe
+
+# Utilities
+Pillow
+scipy

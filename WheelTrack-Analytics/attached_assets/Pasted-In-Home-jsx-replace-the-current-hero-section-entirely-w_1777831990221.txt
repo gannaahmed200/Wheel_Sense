@@ -1,0 +1,758 @@
+In Home.jsx, replace the current hero section entirely with a sticky scroll-driven experience. The 3D model is built from scratch using Three.js — no GLB file, no Spline embed, pure code.
+
+STEP 1 — Install dependencies if not already installed:
+bashnpm install three @react-three/fiber @react-three/drei framer-motion
+
+STEP 2 — Hero section HTML/JSX structure:
+jsximport { useRef, useEffect, useState } from 'react'
+import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion'
+import * as THREE from 'three'
+
+export default function Home() {
+  const heroWrapperRef = useRef(null)
+  const canvasRef = useRef(null)
+  const sceneRef = useRef({})
+
+  const { scrollYProgress } = useScroll({
+    target: heroWrapperRef,
+    offset: ['start start', 'end end']
+  })
+
+  return (
+    <motion.div>
+
+      {/* STICKY HERO WRAPPER — 3 screens tall */}
+      <div ref={heroWrapperRef} style={{ height: '300vh', position: 'relative' }}>
+
+        {/* STICKY CONTENT — stays pinned while scrolling */}
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          overflow: 'hidden',
+          background: '#0a0a0a'
+        }}>
+
+          {/* LEFT SIDE — text that changes per act */}
+          <div style={{ flex: 1, padding: '0 4rem', zIndex: 10 }}>
+            <ActText scrollProgress={scrollYProgress} />
+          </div>
+
+          {/* RIGHT SIDE — Three.js canvas */}
+          <div style={{ flex: 1, height: '100vh', position: 'relative' }}>
+            <canvas
+              ref={canvasRef}
+              style={{ width: '100%', height: '100%', display: 'block' }}
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* REST OF PAGE — appears after sticky section ends */}
+      <StatsCounter />
+      <HowItWorks />
+    </motion.div>
+  )
+}
+
+STEP 3 — ActText component — left side text changes per act:
+jsxfunction ActText({ scrollProgress }) {
+  const [act, setAct] = useState(1)
+
+  useEffect(() => {
+    return scrollProgress.on('change', v => {
+      if (v < 0.33) setAct(1)
+      else if (v < 0.66) setAct(2)
+      else setAct(3)
+    })
+  }, [scrollProgress])
+
+  const acts = {
+    1: {
+      tag: 'PARALYMPIC PERFORMANCE ANALYSIS',
+      title: ['WHEEL', 'TRACK'],
+      sub: 'Real-time biomechanics analysis and injury prevention for Paralympic wheelchair basketball athletes.',
+      cta: true
+    },
+    2: {
+      tag: 'STAGE 1 — DETECTION',
+      title: ['AI DETECTS', '33 KEYPOINTS'],
+      sub: 'MediaPipe BlazePose maps every joint on the athlete\'s body in real-time. No wearables. No sensors. Just a camera.',
+      cta: false
+    },
+    3: {
+      tag: 'STAGE 2 — ANALYSIS',
+      title: ['BIOMECHANICS', 'EXTRACTED'],
+      sub: 'Elbow flexion. Shoulder abduction. Trunk rotation. Calculated frame by frame at 30fps. Injury detected before it happens.',
+      cta: false
+    }
+  }
+
+  const current = acts[act]
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={act}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Tag line */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '1.5rem'
+        }}>
+          <div style={{ width: '40px', height: '2px', background: '#FF5A1F' }} />
+          <span style={{
+            fontFamily: 'Barlow Condensed, sans-serif',
+            fontSize: '12px',
+            letterSpacing: '0.2em',
+            color: '#FF5A1F',
+            textTransform: 'uppercase'
+          }}>
+            {current.tag}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h1 style={{
+          fontFamily: 'Bebas Neue, sans-serif',
+          fontSize: 'clamp(4rem, 8vw, 7rem)',
+          lineHeight: 1,
+          margin: '0 0 1.5rem',
+          letterSpacing: '0.05em'
+        }}>
+          <span style={{ color: '#ffffff', display: 'block' }}>{current.title[0]}</span>
+          <span style={{ color: '#FF5A1F', display: 'block' }}>{current.title[1]}</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p style={{
+          fontFamily: 'DM Sans, sans-serif',
+          fontSize: '1rem',
+          color: '#888880',
+          lineHeight: 1.7,
+          maxWidth: '420px',
+          margin: '0 0 2rem'
+        }}>
+          {current.sub}
+        </p>
+
+        {/* CTAs — only on Act 1 */}
+        {current.cta && (
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <motion.button
+              onClick={() => navigate('/configure')}
+              style={{
+                padding: '14px 32px',
+                background: '#FF5A1F',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50px',
+                fontFamily: 'Barlow Condensed, sans-serif',
+                fontSize: '1rem',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: 'none'
+              }}
+              whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(255,90,31,0.5)' }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Start Analysis
+            </motion.button>
+            <motion.button
+              style={{
+                padding: '14px 32px',
+                background: 'transparent',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '50px',
+                fontFamily: 'Barlow Condensed, sans-serif',
+                fontSize: '1rem',
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: 'none'
+              }}
+              whileHover={{ scale: 1.05, borderColor: 'rgba(255,90,31,0.5)' }}
+              whileTap={{ scale: 0.97 }}
+            >
+              Learn More
+            </motion.button>
+          </div>
+        )}
+
+        {/* Scroll indicator — only Act 1 */}
+        {act === 1 && (
+          <motion.div
+            style={{
+              position: 'absolute',
+              bottom: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '8px'
+            }}
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: '11px',
+              color: '#444440',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase'
+            }}>
+              Scroll to explore
+            </span>
+            <div style={{ width: '1px', height: '40px', background: 'linear-gradient(to bottom, #FF5A1F, transparent)' }} />
+          </motion.div>
+        )}
+
+        {/* Act indicator dots */}
+        <div style={{
+          position: 'absolute',
+          bottom: '2rem',
+          right: '2rem',
+          display: 'flex',
+          gap: '8px'
+        }}>
+          {[1,2,3].map(i => (
+            <div key={i} style={{
+              width: i === act ? '24px' : '6px',
+              height: '6px',
+              borderRadius: '3px',
+              background: i === act ? '#FF5A1F' : '#333',
+              transition: 'all 0.3s ease'
+            }} />
+          ))}
+        </div>
+
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+STEP 4 — Three.js scene setup (useEffect in Home component):
+jsxuseEffect(() => {
+  const canvas = canvasRef.current
+  if (!canvas) return
+  const W = canvas.offsetWidth
+  const H = canvas.offsetHeight
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
+  renderer.setSize(W, H)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.shadowMap.enabled = true
+
+  // Scene + Camera
+  const scene = new THREE.Scene()
+  const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100)
+  camera.position.set(0, 1.8, 5.5)
+  camera.lookAt(0, 1.2, 0)
+
+  // ---- HELPER FUNCTIONS ----
+  function mat(color, rough = 0.6, metal = 0.1) {
+    return new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal })
+  }
+
+  function tube(x1,y1,z1,x2,y2,z2,r=0.025,col=0x888888) {
+    const dir = new THREE.Vector3(x2-x1,y2-y1,z2-z1)
+    const len = dir.length()
+    const mid = new THREE.Vector3((x1+x2)/2,(y1+y2)/2,(z1+z2)/2)
+    const g = new THREE.CylinderGeometry(r,r,len,8)
+    const m = new THREE.Mesh(g, mat(col,0.3,0.7))
+    m.position.copy(mid)
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.normalize())
+    m.castShadow = true
+    return m
+  }
+
+  // ---- MAIN GROUP ----
+  const group = new THREE.Group()
+
+  // ---- WHEELCHAIR FRAME ----
+  const wFrame = new THREE.Group()
+
+  // Seat bars
+  wFrame.add(tube(-0.45,0.55,0,    0.45,0.55,0,    0.02, 0x999999))
+  wFrame.add(tube(-0.45,0.55,-0.38,0.45,0.55,-0.38, 0.02, 0x999999))
+  wFrame.add(tube(-0.45,0.55,0,   -0.45,0.55,-0.38, 0.02, 0x999999))
+  wFrame.add(tube( 0.45,0.55,0,    0.45,0.55,-0.38, 0.02, 0x999999))
+
+  // Backrest
+  wFrame.add(tube(-0.42,0.55,-0.38,-0.42,1.1,-0.38, 0.025, 0x888888))
+  wFrame.add(tube( 0.42,0.55,-0.38, 0.42,1.1,-0.38, 0.025, 0x888888))
+  wFrame.add(tube(-0.42,1.1,-0.38,  0.42,1.1,-0.38, 0.02,  0x888888))
+
+  // Diagonal supports
+  wFrame.add(tube(-0.42,0.55,0,   -0.42,0,-0.15, 0.025, 0x777777))
+  wFrame.add(tube( 0.42,0.55,0,    0.42,0,-0.15, 0.025, 0x777777))
+  wFrame.add(tube(-0.42,0.55,-0.38,-0.42,0,-0.15, 0.02,  0x777777))
+  wFrame.add(tube( 0.42,0.55,-0.38, 0.42,0,-0.15, 0.02,  0x777777))
+  wFrame.add(tube(-0.42,0,-0.15,    0.42,0,-0.15, 0.02,  0x777777))
+
+  // Footrests
+  wFrame.add(tube(-0.25,0.55,0.05,-0.25,0.1,0.4, 0.02, 0x888888))
+  wFrame.add(tube( 0.25,0.55,0.05, 0.25,0.1,0.4, 0.02, 0x888888))
+  wFrame.add(tube(-0.28,0.12,0.42, 0.28,0.12,0.42, 0.025, 0x999999))
+
+  // Seat cushion
+  const seatCush = new THREE.Mesh(
+    new THREE.BoxGeometry(0.88,0.06,0.38),
+    mat(0x222222,0.9,0)
+  )
+  seatCush.position.set(0,0.58,-0.19)
+  wFrame.add(seatCush)
+
+  // Back cushion
+  const backCush = new THREE.Mesh(
+    new THREE.BoxGeometry(0.82,0.5,0.04),
+    mat(0x1a1a1a,0.9,0)
+  )
+  backCush.position.set(0,0.84,-0.37)
+  wFrame.add(backCush)
+
+  // Big wheels
+  function bigWheel(x) {
+    const wg = new THREE.Group()
+    const r = 0.52
+
+    // Tire
+    wg.add(Object.assign(
+      new THREE.Mesh(new THREE.TorusGeometry(r,0.055,12,48), mat(0x1a1a1a,0.9,0.1)),
+      { castShadow: true }
+    ))
+
+    // Push rim — orange
+    wg.add(new THREE.Mesh(
+      new THREE.TorusGeometry(r-0.07,0.018,8,48),
+      mat(0xFF5A1F,0.4,0.6)
+    ))
+
+    // Hub
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.06,16), mat(0xcccccc,0.2,0.9))
+    hub.rotation.x = Math.PI/2
+    wg.add(hub)
+
+    // Spokes
+    for(let i=0;i<16;i++) {
+      const angle = (i/16)*Math.PI*2
+      const spoke = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008,0.008,r*0.96,4),
+        mat(0xaaaaaa,0.3,0.7)
+      )
+      spoke.position.set(Math.cos(angle)*r/2, Math.sin(angle)*r/2, 0)
+      spoke.rotation.z = angle + Math.PI/2
+      wg.add(spoke)
+    }
+
+    wg.rotation.y = Math.PI/2
+    wg.position.set(x, 0.52, -0.15)
+    return wg
+  }
+
+  wFrame.add(bigWheel(-0.52))
+  wFrame.add(bigWheel( 0.52))
+
+  // Caster wheels
+  function caster(x, z) {
+    const cg = new THREE.Group()
+    cg.add(new THREE.Mesh(new THREE.TorusGeometry(0.1,0.03,8,24), mat(0x222222,0.9,0)))
+    cg.rotation.y = Math.PI/2
+    cg.position.set(x, 0.1, z)
+    return cg
+  }
+  wFrame.add(caster(-0.3, 0.5))
+  wFrame.add(caster( 0.3, 0.5))
+
+  group.add(wFrame)
+
+  // ---- ATHLETE MESHES ----
+  // Store all athlete meshes so we can fade them in Act 3
+  const athleteMeshes = []
+  const athleteGroup = new THREE.Group()
+
+  function addAthleteMesh(mesh) {
+    mesh.castShadow = true
+    mesh.material.transparent = true
+    mesh.material.opacity = 1
+    athleteMeshes.push(mesh)
+    athleteGroup.add(mesh)
+    return mesh
+  }
+
+  // Torso
+  addAthleteMesh(Object.assign(
+    new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.19,0.55,12), mat(0xFF5A1F,0.7,0)),
+    { position: new THREE.Vector3(0, 1.0, -0.15) }
+  ))
+
+  // Jersey stripe
+  addAthleteMesh(Object.assign(
+    new THREE.Mesh(new THREE.BoxGeometry(0.08,0.15,0.01), mat(0xffffff,0.8,0)),
+    { position: new THREE.Vector3(0, 1.02, 0.21) }
+  ))
+
+  // Shoulders
+  ;[-0.3, 0.3].forEach(x => {
+    const s = new THREE.Mesh(new THREE.SphereGeometry(0.13,12,12), mat(0xFF5A1F,0.7,0))
+    s.position.set(x, 1.22, -0.1)
+    addAthleteMesh(s)
+  })
+
+  // Head
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.19,16,16), mat(0xD4956A,0.7,0.05))
+  head.position.set(0, 1.62, -0.08)
+  addAthleteMesh(head)
+
+  // Helmet
+  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.195,16,16), mat(0x111111,0.8,0.1))
+  helmet.position.set(0, 1.67, -0.1)
+  helmet.scale.set(1, 0.6, 1)
+  addAthleteMesh(helmet)
+
+  // Eyes
+  ;[-0.07, 0.07].forEach(x => {
+    const e = new THREE.Mesh(new THREE.SphereGeometry(0.025,8,8), mat(0x111111,0.5,0))
+    e.position.set(x, 1.63, 0.12)
+    addAthleteMesh(e)
+  })
+
+  // Neck
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,0.12,10), mat(0xD4956A,0.7,0))
+  neck.position.set(0, 1.48, -0.06)
+  addAthleteMesh(neck)
+
+  // RIGHT ARM — shooting up (fixed connection)
+  const rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.32,10), mat(0xFF5A1F,0.7,0))
+  rightUpperArm.position.set(0.35, 1.25, -0.05)
+  rightUpperArm.rotation.z = -Math.PI/3
+  rightUpperArm.rotation.x = -0.3
+  addAthleteMesh(rightUpperArm)
+
+  const rightForeArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,10), mat(0xD4956A,0.7,0))
+  rightForeArm.position.set(0.58, 1.48, -0.05)
+  rightForeArm.rotation.z = -0.3
+  rightForeArm.rotation.x = -0.5
+  addAthleteMesh(rightForeArm)
+
+  const rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8), mat(0xD4956A,0.7,0))
+  rightHand.position.set(0.72, 1.7, -0.1)
+  addAthleteMesh(rightHand)
+
+  // LEFT ARM — reaching forward
+  const leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.32,10), mat(0xD4956A,0.7,0))
+  leftUpperArm.position.set(-0.35, 1.25, -0.05)
+  leftUpperArm.rotation.z = Math.PI/3
+  leftUpperArm.rotation.x = -0.4
+  addAthleteMesh(leftUpperArm)
+
+  const leftForeArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,10), mat(0xD4956A,0.7,0))
+  leftForeArm.position.set(-0.58, 1.05, 0.22)
+  leftForeArm.rotation.z = Math.PI/2.8
+  leftForeArm.rotation.x = -0.8
+  addAthleteMesh(leftForeArm)
+
+  const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8), mat(0xD4956A,0.7,0))
+  leftHand.position.set(-0.75, 0.88, 0.38)
+  addAthleteMesh(leftHand)
+
+  // Thighs
+  ;[-0.22, 0.22].forEach(x => {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,0.38,10), mat(0x1a1a1a,0.8,0))
+    t.position.set(x, 0.68, 0.08)
+    t.rotation.x = Math.PI/2.2
+    addAthleteMesh(t)
+  })
+
+  // Shins
+  ;[-0.22, 0.22].forEach(x => {
+    const s = new THREE.Mesh(new THREE.CylinderGeometry(0.065,0.055,0.3,10), mat(0xD4956A,0.7,0))
+    s.position.set(x, 0.38, 0.3)
+    s.rotation.x = -0.4
+    addAthleteMesh(s)
+  })
+
+  // Shoes
+  ;[-0.22, 0.22].forEach(x => {
+    const sole = new THREE.Mesh(new THREE.BoxGeometry(0.15,0.06,0.28), mat(0x111111,0.9,0))
+    sole.position.set(x, 0.19, 0.45)
+    addAthleteMesh(sole)
+
+    const upper = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.1,0.24), mat(0xffffff,0.7,0))
+    upper.position.set(x, 0.25, 0.44)
+    addAthleteMesh(upper)
+
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.145,0.025,0.26), mat(0xFF5A1F,0.6,0))
+    stripe.position.set(x, 0.22, 0.44)
+    addAthleteMesh(stripe)
+  })
+
+  group.add(athleteGroup)
+
+  // ---- BASKETBALL ----
+  const ballGroup = new THREE.Group()
+  const ballCore = new THREE.Mesh(
+    new THREE.SphereGeometry(0.16,24,24),
+    mat(0xD4581A,0.6,0.05)
+  )
+  ballGroup.add(ballCore)
+
+  for(let i=0;i<3;i++) {
+    const seam = new THREE.Mesh(
+      new THREE.TorusGeometry(0.162,0.006,6,32),
+      mat(0x1a1a1a,0.9,0)
+    )
+    seam.rotation.y = (i/3)*Math.PI
+    ballGroup.add(seam)
+  }
+  ballGroup.position.set(0.88, 1.88, -0.05)
+  group.add(ballGroup)
+
+  // ---- JOINT KEYPOINT SPHERES (Act 2 & 3) ----
+  // Positions match the athlete body parts
+  const keypointPositions = [
+    [0,    1.62, -0.08],  // head
+    [-0.3, 1.22, -0.1],   // left shoulder
+    [0.3,  1.22, -0.1],   // right shoulder
+    [-0.35,1.25, -0.05],  // left elbow
+    [0.35, 1.25, -0.05],  // right elbow
+    [-0.75,0.88,  0.38],  // left wrist
+    [0.72, 1.7,  -0.1],   // right wrist
+    [-0.22,0.68,  0.08],  // left hip
+    [0.22, 0.68,  0.08],  // right hip
+    [-0.22,0.38,  0.3],   // left knee
+    [0.22, 0.38,  0.3],   // right knee
+    [0,    1.48, -0.06],  // neck
+    [0,    1.0,  -0.15],  // chest center
+  ]
+
+  // Skeleton connection lines between keypoints
+  const skeletonConnections = [
+    [0, 11],  // head to neck
+    [11,12],  // neck to chest
+    [11,1],   // neck to left shoulder
+    [11,2],   // neck to right shoulder
+    [1, 3],   // left shoulder to elbow
+    [2, 4],   // right shoulder to elbow
+    [3, 5],   // left elbow to wrist
+    [4, 6],   // right elbow to wrist
+    [12,7],   // chest to left hip
+    [12,8],   // chest to right hip
+    [7, 9],   // left hip to knee
+    [8, 10],  // right hip to knee
+  ]
+
+  // Create keypoint spheres — start invisible
+  const keypointSpheres = keypointPositions.map((pos, i) => {
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.045, 12, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0xFF5A1F,
+        emissive: 0xFF5A1F,
+        emissiveIntensity: 0.8,
+        transparent: true,
+        opacity: 0
+      })
+    )
+    sphere.position.set(...pos)
+    scene.add(sphere)
+    return sphere
+  })
+
+  // Create skeleton lines — start invisible
+  const skeletonLines = skeletonConnections.map(([a, b]) => {
+    const posA = keypointPositions[a]
+    const posB = keypointPositions[b]
+    const points = [
+      new THREE.Vector3(...posA),
+      new THREE.Vector3(...posB)
+    ]
+    const geo = new THREE.BufferGeometry().setFromPoints(points)
+    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({
+      color: 0xFF5A1F,
+      transparent: true,
+      opacity: 0
+    }))
+    scene.add(line)
+    return line
+  })
+
+  // ---- WHEELCHAIR FRAME WIREFRAME (Act 3) ----
+  const wireframeMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.9, 0.6, 0.5),
+    new THREE.MeshBasicMaterial({
+      color: 0xFF5A1F,
+      wireframe: true,
+      transparent: true,
+      opacity: 0
+    })
+  )
+  wireframeMesh.position.set(0, 0.7, -0.15)
+  scene.add(wireframeMesh)
+
+  // ---- PARTICLES ----
+  const partGeo = new THREE.BufferGeometry()
+  const positions = new Float32Array(80 * 3)
+  for(let i=0;i<80;i++) {
+    positions[i*3]   = (Math.random()-0.5)*6
+    positions[i*3+1] = Math.random()*4
+    positions[i*3+2] = (Math.random()-0.5)*4 - 2
+  }
+  partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  scene.add(new THREE.Points(partGeo, new THREE.PointsMaterial({
+    color: 0xFF5A1F, size: 0.025, transparent: true, opacity: 0.4
+  })))
+
+  // ---- LIGHTING ----
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4))
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.2)
+  keyLight.position.set(3, 5, 3)
+  keyLight.castShadow = true
+  scene.add(keyLight)
+
+  const rimLight = new THREE.PointLight(0xFF5A1F, 3, 8)
+  rimLight.position.set(-2, 3, -1)
+  scene.add(rimLight)
+
+  scene.add(Object.assign(new THREE.PointLight(0xFF8C60, 1.5, 10), { position: new THREE.Vector3(2, 2, 3) }))
+  scene.add(Object.assign(new THREE.PointLight(0xFF5A1F, 2, 6), { position: new THREE.Vector3(0, 4, -3) }))
+
+  scene.add(group)
+
+  // ---- SCROLL STATE ----
+  let currentScroll = 0
+  const unsubscribe = scrollYProgress.on('change', v => { currentScroll = v })
+
+  // ---- MOUSE ----
+  let mouseX = 0, mouseY = 0
+  const onMouseMove = e => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2
+    mouseY = -(e.clientY / window.innerHeight - 0.5) * 2
+  }
+  window.addEventListener('mousemove', onMouseMove)
+
+  // ---- LERP HELPER ----
+  const lerp = (a, b, t) => a + (b - a) * t
+
+  // ---- ANIMATION LOOP ----
+  let time = 0
+  let animId
+  let keypointOpacities = new Array(keypointSpheres.length).fill(0)
+
+  function animate() {
+    animId = requestAnimationFrame(animate)
+    time += 0.012
+
+    // Mouse follow
+    group.rotation.y += (mouseX * 0.5 - group.rotation.y) * 0.05
+    group.rotation.x += (mouseY * 0.08 - group.rotation.x) * 0.05
+
+    // Breathing
+    group.position.y = Math.sin(time * 0.8) * 0.02
+
+    // Ball animation
+    ballGroup.position.y = 1.88 + Math.abs(Math.sin(time * 1.4)) * 0.08
+    ballGroup.rotation.y = time * 1.5
+
+    // Rim light pulse
+    rimLight.intensity = 2.5 + Math.sin(time * 2) * 0.5
+
+    // ---- ACT TRANSITIONS ----
+    const s = currentScroll
+
+    // ACT 1 → ACT 2 transition (scroll 0.15 to 0.40)
+    const act2Progress = Math.max(0, Math.min(1, (s - 0.15) / 0.25))
+
+    // ACT 2 → ACT 3 transition (scroll 0.50 to 0.75)
+    const act3Progress = Math.max(0, Math.min(1, (s - 0.50) / 0.25))
+
+    // Keypoint spheres appear staggered in Act 2
+    keypointSpheres.forEach((sphere, i) => {
+      const delay = i / keypointSpheres.length
+      const targetOpacity = act2Progress > delay ? Math.min(1, (act2Progress - delay) * 5) : 0
+      keypointOpacities[i] = lerp(keypointOpacities[i], targetOpacity, 0.08)
+      sphere.material.opacity = keypointOpacities[i]
+      // Pulse in Act 2
+      sphere.scale.setScalar(1 + Math.sin(time * 2 + i) * 0.08 * act2Progress)
+    })
+
+    // Skeleton lines appear with Act 2
+    skeletonLines.forEach((line, i) => {
+      const delay = i / skeletonLines.length * 0.5
+      const targetOpacity = act2Progress > delay ? Math.min(0.7, (act2Progress - delay) * 3) : 0
+      line.material.opacity = lerp(line.material.opacity, targetOpacity, 0.05)
+    })
+
+    // Athlete body fades OUT in Act 3
+    athleteMeshes.forEach(mesh => {
+      const targetOpacity = 1 - act3Progress
+      mesh.material.opacity = lerp(mesh.material.opacity, targetOpacity, 0.05)
+    })
+
+    // Wheelchair wireframe fades IN in Act 3
+    wireframeMesh.material.opacity = lerp(
+      wireframeMesh.material.opacity,
+      act3Progress * 0.6,
+      0.05
+    )
+
+    // Keypoints get brighter in Act 3
+    keypointSpheres.forEach(sphere => {
+      sphere.material.emissiveIntensity = lerp(
+        sphere.material.emissiveIntensity,
+        0.8 + act3Progress * 2,
+        0.05
+      )
+    })
+
+    // Ball fades slightly in Act 3
+    ballGroup.children.forEach(m => {
+      if (m.material) {
+        m.material.transparent = true
+        m.material.opacity = lerp(m.material.opacity ?? 1, 1 - act3Progress * 0.7, 0.05)
+      }
+    })
+
+    renderer.render(scene, camera)
+  }
+
+  animate()
+
+  // Cleanup
+  return () => {
+    cancelAnimationFrame(animId)
+    unsubscribe()
+    window.removeEventListener('mousemove', onMouseMove)
+    renderer.dispose()
+  }
+
+}, [])
+
+STEP 5 — Critical notes for agent:
+
+The useEffect goes inside the Home component, NOT inside a separate component
+scrollYProgress from useScroll must be passed into the useEffect via a ref — do it like this:
+
+jsconst scrollRef = useRef(0)
+useEffect(() => {
+  return scrollYProgress.on('change', v => { scrollRef.current = v })
+}, [scrollYProgress])
+// Then inside animate() use scrollRef.current instead of currentScroll
+
+The canvasRef must point to a <canvas> element not a div
+Add useNavigate from react-router-dom for the Start Analysis button
+Do NOT use @react-three/fiber Canvas component here — use raw Three.js with useEffect and canvasRef because we need direct control over the animation loop for scroll-driven transitions
+The height: '300vh' on the wrapper div is what creates the scroll space — do not remove it
+After the sticky hero div, the <StatsCounter /> and <HowItWorks /> components render normally below — they are NOT inside the sticky section

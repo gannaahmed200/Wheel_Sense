@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "WheelTrack"
+version = "1.0.0"
+id = "artifacts/wheeltrack"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24474
+
+[services.development]
+run = "pnpm --filter @workspace/wheeltrack run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wheeltrack", "run", "build" ]
+publicDir = "artifacts/wheeltrack/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24474"
+BASE_PATH = "/"

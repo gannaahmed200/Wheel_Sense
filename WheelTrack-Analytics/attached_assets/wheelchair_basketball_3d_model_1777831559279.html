@@ -1,0 +1,419 @@
+
+<style>
+  body { background: #0a0a0a; margin: 0; }
+  #c { display: block; width: 100%; height: 520px; background: #0a0a0a; }
+</style>
+<canvas id="c"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const W = document.getElementById('c').offsetWidth;
+const H = 520;
+document.getElementById('c').width = W;
+document.getElementById('c').height = H;
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: true });
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setPixelRatio(window.devicePixelRatio || 1);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a0a);
+scene.fog = new THREE.Fog(0x0a0a0a, 8, 20);
+
+const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+camera.position.set(0, 1.8, 5.5);
+camera.lookAt(0, 1.2, 0);
+
+const orange = 0xFF5A1F;
+const darkOrange = 0xcc4718;
+const skin = 0xD4956A;
+const darkSkin = 0xB87040;
+const jersey = 0xFF5A1F;
+const shorts = 0x1a1a1a;
+const wheelCol = 0x333333;
+const rimCol = 0xFF5A1F;
+const white = 0xffffff;
+const black = 0x111111;
+
+function mat(color, rough=0.6, metal=0.1) {
+  return new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal });
+}
+
+const group = new THREE.Group();
+
+// === WHEELCHAIR FRAME ===
+const wFrame = new THREE.Group();
+
+// Main seat frame - horizontal bars
+const seatMat = mat(0x888888, 0.3, 0.8);
+function tube(x1,y1,z1,x2,y2,z2,r=0.025,col=0x888888) {
+  const dir = new THREE.Vector3(x2-x1,y2-y1,z2-z1);
+  const len = dir.length();
+  const mid = new THREE.Vector3((x1+x2)/2,(y1+y2)/2,(z1+z2)/2);
+  const g = new THREE.CylinderGeometry(r,r,len,8);
+  const m = new THREE.Mesh(g, mat(col,0.3,0.7));
+  m.position.copy(mid);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.normalize());
+  m.castShadow = true;
+  return m;
+}
+
+// Seat frame tubes
+wFrame.add(tube(-0.45,0.55,0, 0.45,0.55,0, 0.02, 0x999999)); // front seat bar
+wFrame.add(tube(-0.45,0.55,-0.38, 0.45,0.55,-0.38, 0.02, 0x999999)); // back seat bar
+wFrame.add(tube(-0.45,0.55,0, -0.45,0.55,-0.38, 0.02, 0x999999)); // left side
+wFrame.add(tube(0.45,0.55,0, 0.45,0.55,-0.38, 0.02, 0x999999)); // right side
+
+// Back rest frame
+wFrame.add(tube(-0.42,0.55,-0.38, -0.42,1.1,-0.38, 0.025, 0x888888));
+wFrame.add(tube(0.42,0.55,-0.38, 0.42,1.1,-0.38, 0.025, 0x888888));
+wFrame.add(tube(-0.42,1.1,-0.38, 0.42,1.1,-0.38, 0.02, 0x888888));
+
+// Diagonal support tubes
+wFrame.add(tube(-0.42,0.55,0, -0.42,0,-0.15, 0.025, 0x777777));
+wFrame.add(tube(0.42,0.55,0, 0.42,0,-0.15, 0.025, 0x777777));
+wFrame.add(tube(-0.42,0.55,-0.38, -0.42,0,-0.15, 0.02, 0x777777));
+wFrame.add(tube(0.42,0.55,-0.38, 0.42,0,-0.15, 0.02, 0x777777));
+wFrame.add(tube(-0.42,0,-0.15, 0.42,0,-0.15, 0.02, 0x777777));
+
+// Footrest tubes
+wFrame.add(tube(-0.25,0.55,0.05, -0.25,0.1,0.4, 0.02, 0x888888));
+wFrame.add(tube(0.25,0.55,0.05, 0.25,0.1,0.4, 0.02, 0x888888));
+wFrame.add(tube(-0.28,0.12,0.42, 0.28,0.12,0.42, 0.025, 0x999999)); // footrest bar
+
+// Seat cushion
+const seatCush = new THREE.Mesh(
+  new THREE.BoxGeometry(0.88,0.06,0.38),
+  mat(0x222222,0.9,0)
+);
+seatCush.position.set(0,0.58,-0.19);
+seatCush.castShadow = true;
+wFrame.add(seatCush);
+
+// Back cushion
+const backCush = new THREE.Mesh(
+  new THREE.BoxGeometry(0.82,0.5,0.04),
+  mat(0x1a1a1a,0.9,0)
+);
+backCush.position.set(0,0.84,-0.37);
+wFrame.add(backCush);
+
+// === BIG WHEELS ===
+function bigWheel(x) {
+  const wg = new THREE.Group();
+  const r = 0.52;
+
+  // Tire
+  const tire = new THREE.Mesh(
+    new THREE.TorusGeometry(r, 0.055, 12, 48),
+    mat(0x1a1a1a, 0.9, 0.1)
+  );
+  wg.add(tire);
+
+  // Push rim (orange!)
+  const pushRim = new THREE.Mesh(
+    new THREE.TorusGeometry(r-0.07, 0.018, 8, 48),
+    mat(orange, 0.4, 0.6)
+  );
+  wg.add(pushRim);
+
+  // Hub
+  const hub = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06,0.06,0.06,16),
+    mat(0xcccccc, 0.2, 0.9)
+  );
+  hub.rotation.x = Math.PI/2;
+  wg.add(hub);
+
+  // Spokes
+  for(let i=0;i<16;i++) {
+    const angle = (i/16)*Math.PI*2;
+    const sx = Math.cos(angle)*r*0.95;
+    const sy = Math.sin(angle)*r*0.95;
+    const spoke = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.008,0.008,r*0.96,4),
+      mat(0xaaaaaa,0.3,0.7)
+    );
+    spoke.position.set(sx/2, sy/2, 0);
+    spoke.rotation.z = angle + Math.PI/2;
+    wg.add(spoke);
+  }
+
+  wg.rotation.y = Math.PI/2;
+  wg.position.set(x, 0.52, -0.15);
+  wg.castShadow = true;
+  return wg;
+}
+
+wFrame.add(bigWheel(-0.52));
+wFrame.add(bigWheel(0.52));
+
+// Small front caster wheels
+function caster(x, z) {
+  const cg = new THREE.Group();
+  const t = new THREE.Mesh(new THREE.TorusGeometry(0.1,0.03,8,24), mat(0x222222,0.9,0));
+  cg.add(t);
+  cg.rotation.y = Math.PI/2;
+  cg.position.set(x, 0.1, z);
+  return cg;
+}
+wFrame.add(caster(-0.3, 0.5));
+wFrame.add(caster(0.3, 0.5));
+
+group.add(wFrame);
+
+// === ATHLETE BODY ===
+const athleteGroup = new THREE.Group();
+
+// Torso
+const torso = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.22, 0.19, 0.55, 12),
+  mat(jersey, 0.7, 0)
+);
+torso.position.set(0, 1.0, -0.15);
+torso.castShadow = true;
+athleteGroup.add(torso);
+
+// Jersey number "4" - small highlight
+const jerseyStripe = new THREE.Mesh(
+  new THREE.BoxGeometry(0.08,0.15,0.01),
+  mat(white,0.8,0)
+);
+jerseyStripe.position.set(0,1.02,0.21);
+athleteGroup.add(jerseyStripe);
+
+// Shoulders
+function shoulder(x) {
+  const s = new THREE.Mesh(new THREE.SphereGeometry(0.13,12,12), mat(jersey,0.7,0));
+  s.position.set(x, 1.22, -0.1);
+  s.castShadow = true;
+  return s;
+}
+athleteGroup.add(shoulder(-0.3));
+athleteGroup.add(shoulder(0.3));
+
+// HEAD
+const head = new THREE.Mesh(
+  new THREE.SphereGeometry(0.19, 16, 16),
+  mat(skin, 0.7, 0.05)
+);
+head.position.set(0, 1.62, -0.08);
+head.castShadow = true;
+athleteGroup.add(head);
+
+// Hair / helmet
+const helmet = new THREE.Mesh(
+  new THREE.SphereGeometry(0.195, 16, 16),
+  mat(0x111111, 0.8, 0.1)
+);
+helmet.position.set(0, 1.67, -0.1);
+helmet.scale.set(1, 0.6, 1);
+athleteGroup.add(helmet);
+
+// Eyes
+function eye(x) {
+  const e = new THREE.Mesh(new THREE.SphereGeometry(0.025,8,8), mat(0x111111,0.5,0));
+  e.position.set(x, 1.63, 0.12);
+  return e;
+}
+athleteGroup.add(eye(-0.07));
+athleteGroup.add(eye(0.07));
+
+// Nose
+const nose = new THREE.Mesh(new THREE.SphereGeometry(0.02,6,6), mat(darkSkin,0.7,0));
+nose.position.set(0, 1.57, 0.175);
+athleteGroup.add(nose);
+
+// Neck
+const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,0.12,10), mat(skin,0.7,0));
+neck.position.set(0, 1.48, -0.06);
+athleteGroup.add(neck);
+
+// LEFT ARM - reaching forward for ball
+const leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.32,10), mat(skin,0.7,0));
+leftUpperArm.position.set(-0.42, 1.15, 0.05);
+leftUpperArm.rotation.z = Math.PI/3.5;
+leftUpperArm.rotation.x = -0.4;
+leftUpperArm.castShadow = true;
+athleteGroup.add(leftUpperArm);
+
+const leftForeArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,10), mat(skin,0.7,0));
+leftForeArm.position.set(-0.62, 0.98, 0.22);
+leftForeArm.rotation.z = Math.PI/2.8;
+leftForeArm.rotation.x = -0.8;
+athleteGroup.add(leftForeArm);
+
+// RIGHT ARM - up for shooting
+const rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.32,10), mat(jersey,0.7,0));
+rightUpperArm.position.set(0.4, 1.32, 0.0);
+rightUpperArm.rotation.z = -Math.PI/4;
+rightUpperArm.rotation.x = -0.3;
+rightUpperArm.castShadow = true;
+athleteGroup.add(rightUpperArm);
+
+const rightForeArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,10), mat(skin,0.7,0));
+rightForeArm.position.set(0.6, 1.52, -0.05);
+rightForeArm.rotation.z = -0.3;
+rightForeArm.rotation.x = -0.5;
+athleteGroup.add(rightForeArm);
+
+// Right hand
+const rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8), mat(skin,0.7,0));
+rightHand.position.set(0.72, 1.7, -0.1);
+athleteGroup.add(rightHand);
+
+// Left hand
+const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8), mat(skin,0.7,0));
+leftHand.position.set(-0.78, 0.85, 0.38);
+athleteGroup.add(leftHand);
+
+// Thighs (seated position)
+function thigh(x) {
+  const t = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,0.38,10), mat(shorts,0.8,0));
+  t.position.set(x, 0.68, 0.08);
+  t.rotation.x = Math.PI/2.2;
+  t.castShadow = true;
+  return t;
+}
+athleteGroup.add(thigh(-0.22));
+athleteGroup.add(thigh(0.22));
+
+// Shins
+function shin(x) {
+  const s = new THREE.Mesh(new THREE.CylinderGeometry(0.065,0.055,0.3,10), mat(skin,0.7,0));
+  s.position.set(x, 0.38, 0.3);
+  s.rotation.x = -0.4;
+  s.castShadow = true;
+  return s;
+}
+athleteGroup.add(shin(-0.22));
+athleteGroup.add(shin(0.22));
+
+// Shoes
+function shoe(x) {
+  const sg = new THREE.Group();
+  const sole = new THREE.Mesh(new THREE.BoxGeometry(0.15,0.06,0.28), mat(0x111111,0.9,0));
+  sole.position.set(x, 0.19, 0.45);
+  sg.add(sole);
+  const upper = new THREE.Mesh(new THREE.BoxGeometry(0.14,0.1,0.24), mat(white,0.7,0));
+  upper.position.set(x, 0.25, 0.44);
+  sg.add(upper);
+  // Orange stripe
+  const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.145,0.025,0.26), mat(orange,0.6,0));
+  stripe.position.set(x, 0.22, 0.44);
+  sg.add(stripe);
+  return sg;
+}
+athleteGroup.add(shoe(-0.22));
+athleteGroup.add(shoe(0.22));
+
+group.add(athleteGroup);
+
+// === BASKETBALL ===
+const ball = new THREE.Group();
+const ballCore = new THREE.Mesh(
+  new THREE.SphereGeometry(0.16, 24, 24),
+  mat(0xD4581A, 0.6, 0.05)
+);
+ball.add(ballCore);
+
+// Ball seams
+for(let i=0;i<3;i++) {
+  const seam = new THREE.Mesh(
+    new THREE.TorusGeometry(0.162, 0.006, 6, 32),
+    mat(0x1a1a1a, 0.9, 0)
+  );
+  seam.rotation.y = (i/3)*Math.PI;
+  ball.add(seam);
+}
+ball.position.set(0.88, 1.88, -0.05);
+group.add(ball);
+
+// === GROUND SHADOW ===
+const shadowPlane = new THREE.Mesh(
+  new THREE.CircleGeometry(1.2, 32),
+  new THREE.MeshBasicMaterial({ color: 0xFF5A1F, transparent: true, opacity: 0.05 })
+);
+shadowPlane.rotation.x = -Math.PI/2;
+shadowPlane.position.y = -0.01;
+group.add(shadowPlane);
+
+// Court line suggestion
+const courtLine = new THREE.Mesh(
+  new THREE.RingGeometry(1.1, 1.15, 48),
+  new THREE.MeshBasicMaterial({ color: 0xFF5A1F, transparent: true, opacity: 0.15, side: THREE.DoubleSide })
+);
+courtLine.rotation.x = -Math.PI/2;
+courtLine.position.y = 0;
+group.add(courtLine);
+
+scene.add(group);
+
+// === LIGHTING ===
+const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambient);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+keyLight.position.set(3, 5, 3);
+keyLight.castShadow = true;
+scene.add(keyLight);
+
+const rimLight = new THREE.PointLight(0xFF5A1F, 3, 8);
+rimLight.position.set(-2, 3, -1);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0xFF8C60, 1.5, 10);
+fillLight.position.set(2, 2, 3);
+scene.add(fillLight);
+
+const backLight = new THREE.PointLight(0xFF5A1F, 2, 6);
+backLight.position.set(0, 4, -3);
+scene.add(backLight);
+
+// === PARTICLES ===
+const partGeo = new THREE.BufferGeometry();
+const partCount = 80;
+const positions = new Float32Array(partCount * 3);
+for(let i=0;i<partCount;i++) {
+  positions[i*3] = (Math.random()-0.5)*6;
+  positions[i*3+1] = Math.random()*4;
+  positions[i*3+2] = (Math.random()-0.5)*4 - 2;
+}
+partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const partMat = new THREE.PointsMaterial({ color: 0xFF5A1F, size: 0.025, transparent: true, opacity: 0.4 });
+scene.add(new THREE.Points(partGeo, partMat));
+
+// === MOUSE INTERACTION ===
+let mouseX = 0, mouseY = 0;
+document.getElementById('c').addEventListener('mousemove', e => {
+  const rect = e.target.getBoundingClientRect();
+  mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+  mouseY = -((e.clientY - rect.top) / rect.height - 0.5) * 2;
+});
+
+// === ANIMATE ===
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.012;
+
+  // Smooth mouse follow
+  group.rotation.y += (mouseX * 0.6 - group.rotation.y) * 0.05;
+  group.rotation.x += (mouseY * 0.1 - group.rotation.x) * 0.05;
+
+  // Breathing
+  group.position.y = Math.sin(t * 0.8) * 0.025;
+
+  // Ball bounce
+  ball.position.y = 1.88 + Math.abs(Math.sin(t * 1.4)) * 0.08;
+  ball.rotation.y = t * 1.5;
+  ball.rotation.x = t * 0.5;
+
+  // Rim light pulse
+  rimLight.intensity = 2.5 + Math.sin(t * 2) * 0.5;
+
+  renderer.render(scene, camera);
+}
+animate();
+</script>

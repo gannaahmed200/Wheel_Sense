@@ -1,0 +1,108 @@
+Remove the 3D cartoon model entirely. Replace it with these three specific 3D/immersive techniques that are actually used by flagship sports-tech sites:
+TECHNIQUE 1 — Particle system hero background (Home page):
+Use @react-three/fiber to render a fullscreen canvas behind the hero text. Render 120 small sphere particles (SphereGeometry(0.05)) positioned to form a rough human skeleton shape — like MediaPipe's 33 keypoints but in 3D space. They should:
+
+Float slowly with a sine wave animation
+Connect to each other with thin Line components (like actual pose skeleton connections)
+Glow orange using MeshStandardMaterial with emissive
+React subtly to mouse movement (the whole skeleton tilts 5-10 degrees toward cursor)
+Pulse — each joint sphere scales up/down slightly at different phases
+
+This directly visualizes what WheelTrack does (pose estimation) and is unique, not generic.
+jsximport { Canvas, useFrame } from '@react-three/fiber'
+import { useRef } from 'react'
+
+// MediaPipe-style keypoint positions (normalized to 3D space)
+const KEYPOINTS = [
+  [0, 1.8, 0],      // nose
+  [-0.15, 1.6, 0],  // left shoulder
+  [0.15, 1.6, 0],   // right shoulder
+  [-0.35, 1.1, 0],  // left elbow
+  [0.35, 1.1, 0],   // right elbow
+  [-0.3, 0.6, 0],   // left wrist
+  [0.3, 0.6, 0],    // right wrist
+  [-0.2, 0.5, 0],   // left hip
+  [0.2, 0.5, 0],    // right hip
+  // wheelchair seated — no legs below hip
+]
+
+const CONNECTIONS = [[1,2],[1,3],[2,4],[3,5],[4,6],[1,7],[2,8],[7,8]]
+
+function SkeletonParticles({ mouse }) {
+  const groupRef = useRef()
+  useFrame(({ clock }) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = mouse.x * 0.1
+      groupRef.current.rotation.x = mouse.y * 0.05
+      groupRef.current.position.y = Math.sin(clock.getElapsedTime() * 0.5) * 0.05
+    }
+  })
+  return (
+    <group ref={groupRef}>
+      {KEYPOINTS.map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color="#FF5A1F" emissive="#FF5A1F" emissiveIntensity={0.8} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+// In Home.jsx hero section:
+<Canvas
+  className="absolute inset-0 z-0"
+  camera={{ position: [0, 1, 4], fov: 50 }}
+  style={{ background: 'transparent' }}
+>
+  <ambientLight intensity={0.3} />
+  <pointLight position={[2, 3, 2]} color="#FF5A1F" intensity={2} />
+  <SkeletonParticles mouse={mousePosition} />
+</Canvas>
+TECHNIQUE 2 — Scroll-driven skeleton assembly (Home page, How It Works section):
+As the user scrolls into the "How It Works" section, the 3D skeleton figure assembles — joints appear one by one with a pop animation. Use useInView from Framer Motion to trigger it. Each joint sphere starts at scale 0 and animates to scale 1 with a staggered delay. The connection lines draw themselves using animated dashOffset. This tells the story of pose estimation visually.
+TECHNIQUE 3 — Live court heatmap on Dashboard (replace the empty black canvas):
+Instead of the empty "Court Camera Active" placeholder, render a top-down basketball court in SVG/Canvas with:
+
+Orange gradient circles at the athlete's current position (updates with each data frame)
+Trail of the last 30 positions shown as fading dots (opacity decreases with age)
+Court lines drawn in rgba(255,255,255,0.1)
+This visualizes WHERE on the court the dangerous movements are happening
+
+jsx// Court heatmap using HTML Canvas
+function CourtHeatmap({ positions }) {
+  const canvasRef = useRef()
+  useEffect(() => {
+    const ctx = canvasRef.current.getContext('2d')
+    // Draw court outline
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'
+    ctx.strokeRect(20, 20, 560, 360)
+    // Draw 3-point arc, paint area etc
+    // Draw position trail
+    positions.forEach((pos, i) => {
+      const alpha = i / positions.length
+      ctx.beginPath()
+      ctx.arc(pos.x, pos.y, 6, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(255, 90, 31, ${alpha})`
+      ctx.fill()
+    })
+  }, [positions])
+  return <canvas ref={canvasRef} width={600} height={400} className="w-full h-full" />
+}
+WHAT TO KEEP from current design:
+
+The navbar with sliding active indicator ✅
+The WHEELTRACK letter-by-letter title animation ✅
+The orange/black color scheme ✅
+The overall page structure ✅
+
+WHAT TO REMOVE:
+
+The 3D cartoon wheelchair athlete model ❌
+Any Spline embed ❌
+Generic placeholder graphics ❌
+
+INSTALL:
+bashnpm install @react-three/fiber @react-three/drei three
+
+That's the direction. Particle skeleton = unique to your project's concept. Court heatmap = makes the dashboard feel like a real analytics tool. Both are more impressive than any cartoon model.

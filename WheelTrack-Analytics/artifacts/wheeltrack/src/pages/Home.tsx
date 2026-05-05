@@ -11,7 +11,7 @@ import SkeletonHero from '../components/SkeletonHero'
 const pageVariants = {
   initial: { opacity: 0 },
   animate: { opacity: 1, transition: { duration: 0.6 } },
-  exit:    { opacity: 0, transition: { duration: 0.3 } },
+  exit: { opacity: 0, transition: { duration: 0.3 } },
 }
 
 // ─── WebGL probe (same as SkeletonParticles) ──────────────────────────────────
@@ -35,9 +35,9 @@ function CourtLines() {
       <line x1="640" y1="40" x2="640" y2="680" stroke="#FF5A1F" strokeWidth="1.5" />
       <circle cx="640" cy="360" r="120" fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
       <circle cx="640" cy="360" r="5" fill="#FF5A1F" />
-      <rect x="60"  y="195" width="215" height="330" fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
+      <rect x="60" y="195" width="215" height="330" fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
       <rect x="1005" y="195" width="215" height="330" fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
-      <path d="M 60 160 Q 370 360 60 560"  fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
+      <path d="M 60 160 Q 370 360 60 560" fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
       <path d="M 1220 160 Q 910 360 1220 560" fill="none" stroke="#FF5A1F" strokeWidth="1.5" />
     </svg>
   )
@@ -46,22 +46,22 @@ function CourtLines() {
 // ─── Act content definitions ──────────────────────────────────────────────────
 const ACTS = {
   1: {
-    tag:   'PARALYMPIC PERFORMANCE ANALYSIS',
+    tag: 'PARALYMPIC PERFORMANCE ANALYSIS',
     lines: ['WHEEL', 'TRACK'],
-    sub:   'Real-time biomechanics analysis and injury prevention for Paralympic wheelchair basketball athletes.',
-    cta:   true,
+    sub: 'Real-time biomechanics analysis and injury prevention for Paralympic wheelchair basketball athletes.',
+    cta: true,
   },
   2: {
-    tag:   'STAGE 1 — DETECTION',
+    tag: 'STAGE 1 — DETECTION',
     lines: ['AI DETECTS', '33 KEYPOINTS'],
-    sub:   'MediaPipe BlazePose maps every joint on the athlete\'s body in real-time. No wearables. No sensors. Just a camera.',
-    cta:   false,
+    sub: 'MediaPipe BlazePose maps every joint on the athlete\'s body in real-time. No wearables. No sensors. Just a camera.',
+    cta: false,
   },
   3: {
-    tag:   'STAGE 2 — ANALYSIS',
+    tag: 'STAGE 2 — ANALYSIS',
     lines: ['BIOMECHANICS', 'EXTRACTED'],
-    sub:   'Elbow flexion. Shoulder abduction. Trunk rotation. Calculated frame by frame at 30fps. Injury detected before it happens.',
-    cta:   false,
+    sub: 'Elbow flexion. Shoulder abduction. Trunk rotation. Calculated frame by frame at 30fps. Injury detected before it happens.',
+    cta: false,
   },
 } as const
 
@@ -183,7 +183,7 @@ function ActText({
       </AnimatePresence>
 
       {/* Act dots */}
-      <div style={{ position: 'absolute', bottom: '2.5rem', left: '3.5rem', display: 'flex', gap: 8 }}>
+      <div style={{ position: 'absolute', bottom: '0.8rem', left: '3.5rem', display: 'flex', gap: 8 }}>
         {([1, 2, 3] as const).map(i => (
           <div key={i} style={{
             width: i === act ? 22 : 6, height: 6, borderRadius: 3,
@@ -241,21 +241,21 @@ function buildScene(
 
   // ── Wheelchair frame ───────────────────────────────────────────────────────
   const wFrame = new THREE.Group()
-  wFrame.add(tube(-0.45,0.55,0,      0.45,0.55,0,      0.02, 0x999999))
-  wFrame.add(tube(-0.45,0.55,-0.38,  0.45,0.55,-0.38,  0.02, 0x999999))
-  wFrame.add(tube(-0.45,0.55,0,     -0.45,0.55,-0.38,  0.02, 0x999999))
-  wFrame.add(tube( 0.45,0.55,0,      0.45,0.55,-0.38,  0.02, 0x999999))
-  wFrame.add(tube(-0.42,0.55,-0.38, -0.42,1.1,-0.38,  0.025, 0x888888))
-  wFrame.add(tube( 0.42,0.55,-0.38,  0.42,1.1,-0.38,  0.025, 0x888888))
-  wFrame.add(tube(-0.42,1.1,-0.38,   0.42,1.1,-0.38,  0.02,  0x888888))
-  wFrame.add(tube(-0.42,0.55,0,     -0.42,0,-0.15,    0.025, 0x777777))
-  wFrame.add(tube( 0.42,0.55,0,      0.42,0,-0.15,    0.025, 0x777777))
-  wFrame.add(tube(-0.42,0.55,-0.38, -0.42,0,-0.15,    0.02,  0x777777))
-  wFrame.add(tube( 0.42,0.55,-0.38,  0.42,0,-0.15,    0.02,  0x777777))
-  wFrame.add(tube(-0.42,0,-0.15,     0.42,0,-0.15,    0.02,  0x777777))
-  wFrame.add(tube(-0.25,0.55,0.05,  -0.25,0.1,0.4,    0.02,  0x888888))
-  wFrame.add(tube( 0.25,0.55,0.05,   0.25,0.1,0.4,    0.02,  0x888888))
-  wFrame.add(tube(-0.28,0.12,0.42,   0.28,0.12,0.42,  0.025, 0x999999))
+  wFrame.add(tube(-0.45, 0.55, 0, 0.45, 0.55, 0, 0.02, 0x999999))
+  wFrame.add(tube(-0.45, 0.55, -0.38, 0.45, 0.55, -0.38, 0.02, 0x999999))
+  wFrame.add(tube(-0.45, 0.55, 0, -0.45, 0.55, -0.38, 0.02, 0x999999))
+  wFrame.add(tube(0.45, 0.55, 0, 0.45, 0.55, -0.38, 0.02, 0x999999))
+  wFrame.add(tube(-0.42, 0.55, -0.38, -0.42, 1.1, -0.38, 0.025, 0x888888))
+  wFrame.add(tube(0.42, 0.55, -0.38, 0.42, 1.1, -0.38, 0.025, 0x888888))
+  wFrame.add(tube(-0.42, 1.1, -0.38, 0.42, 1.1, -0.38, 0.02, 0x888888))
+  wFrame.add(tube(-0.42, 0.55, 0, -0.42, 0, -0.15, 0.025, 0x777777))
+  wFrame.add(tube(0.42, 0.55, 0, 0.42, 0, -0.15, 0.025, 0x777777))
+  wFrame.add(tube(-0.42, 0.55, -0.38, -0.42, 0, -0.15, 0.02, 0x777777))
+  wFrame.add(tube(0.42, 0.55, -0.38, 0.42, 0, -0.15, 0.02, 0x777777))
+  wFrame.add(tube(-0.42, 0, -0.15, 0.42, 0, -0.15, 0.02, 0x777777))
+  wFrame.add(tube(-0.25, 0.55, 0.05, -0.25, 0.1, 0.4, 0.02, 0x888888))
+  wFrame.add(tube(0.25, 0.55, 0.05, 0.25, 0.1, 0.4, 0.02, 0x888888))
+  wFrame.add(tube(-0.28, 0.12, 0.42, 0.28, 0.12, 0.42, 0.025, 0x999999))
 
   const seatCush = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.06, 0.38), mat(0x222222, 0.9, 0))
   seatCush.position.set(0, 0.58, -0.19)
@@ -291,7 +291,7 @@ function buildScene(
   }
 
   wFrame.add(bigWheel(-0.52))
-  wFrame.add(bigWheel( 0.52))
+  wFrame.add(bigWheel(0.52))
 
   function caster(x: number, z: number) {
     const cg = new THREE.Group()
@@ -301,7 +301,7 @@ function buildScene(
     return cg
   }
   wFrame.add(caster(-0.3, 0.5))
-  wFrame.add(caster( 0.3, 0.5))
+  wFrame.add(caster(0.3, 0.5))
   group.add(wFrame)
 
   // ── Athlete body ───────────────────────────────────────────────────────────
@@ -435,19 +435,19 @@ function buildScene(
 
   // ── Keypoint spheres (Act 2+) ──────────────────────────────────────────────
   const keypointPositions: [number, number, number][] = [
-    [ 0,     1.62,  0.05],  // 0: head
-    [-0.32,  1.22,  0.05],  // 1: L shoulder
-    [ 0.32,  1.22,  0.05],  // 2: R shoulder
-    [-0.55,  1.07,  0.18],  // 3: L elbow
-    [ 0.55,  1.42,  0.05],  // 4: R elbow
-    [-0.78,  0.85,  0.42],  // 5: L wrist
-    [ 0.72,  1.7,   0.05],  // 6: R wrist
-    [-0.22,  0.65,  0.18],  // 7: L hip
-    [ 0.22,  0.65,  0.18],  // 8: R hip
-    [-0.22,  0.45,  0.42],  // 9: L knee
-    [ 0.22,  0.45,  0.42],  // 10: R knee
-    [ 0,     1.48,  0.05],  // 11: neck
-    [ 0,     1.02,  0.05],  // 12: chest
+    [0, 1.62, 0.05],  // 0: head
+    [-0.32, 1.22, 0.05],  // 1: L shoulder
+    [0.32, 1.22, 0.05],  // 2: R shoulder
+    [-0.55, 1.07, 0.18],  // 3: L elbow
+    [0.55, 1.42, 0.05],  // 4: R elbow
+    [-0.78, 0.85, 0.42],  // 5: L wrist
+    [0.72, 1.7, 0.05],  // 6: R wrist
+    [-0.22, 0.65, 0.18],  // 7: L hip
+    [0.22, 0.65, 0.18],  // 8: R hip
+    [-0.22, 0.45, 0.42],  // 9: L knee
+    [0.22, 0.45, 0.42],  // 10: R knee
+    [0, 1.48, 0.05],  // 11: neck
+    [0, 1.02, 0.05],  // 12: chest
   ]
 
   type KpMesh = THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>
@@ -468,15 +468,15 @@ function buildScene(
 
   // ── Skeleton lines (Act 2+) ────────────────────────────────────────────────
   const skeletonConnections: [number, number][] = [
-    [0,11],          // head → neck
-    [11,1],[11,2],   // neck → shoulders
-    [1,2],           // L shoulder ↔ R shoulder
-    [1,3],[2,4],     // shoulders → elbows
-    [3,5],[4,6],     // elbows → wrists
-    [11,12],         // neck → chest (spine)
-    [12,7],[12,8],   // chest → hips
-    [7,8],           // L hip ↔ R hip
-    [7,9],[8,10],    // hips → knees
+    [0, 11],          // head → neck
+    [11, 1], [11, 2],   // neck → shoulders
+    [1, 2],           // L shoulder ↔ R shoulder
+    [1, 3], [2, 4],     // shoulders → elbows
+    [3, 5], [4, 6],     // elbows → wrists
+    [11, 12],         // neck → chest (spine)
+    [12, 7], [12, 8],   // chest → hips
+    [7, 8],           // L hip ↔ R hip
+    [7, 9], [8, 10],    // hips → knees
   ]
 
   type SkLine = THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>
@@ -507,7 +507,7 @@ function buildScene(
   const pGeo = new THREE.BufferGeometry()
   const pPos = new Float32Array(80 * 3)
   for (let i = 0; i < 80; i++) {
-    pPos[i * 3]     = (Math.random() - 0.5) * 6
+    pPos[i * 3] = (Math.random() - 0.5) * 6
     pPos[i * 3 + 1] = Math.random() * 4
     pPos[i * 3 + 2] = (Math.random() - 0.5) * 4 - 2
   }
@@ -552,7 +552,7 @@ function buildScene(
     const s = scrollRef.current
 
     // Mouse follow
-    group.rotation.y += (mouseX * 0.5  - group.rotation.y) * 0.05
+    group.rotation.y += (mouseX * 0.5 - group.rotation.y) * 0.05
     group.rotation.x += (mouseY * 0.08 - group.rotation.x) * 0.05
 
     // Breathing
@@ -629,8 +629,8 @@ function buildScene(
 export default function Home() {
   const navigate = useNavigate()
   const heroWrapperRef = useRef<HTMLDivElement>(null)
-  const canvasRef      = useRef<HTMLCanvasElement>(null)
-  const scrollRef      = useRef(0)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const scrollRef = useRef(0)
 
   // Probe once, synchronously
   const [webgl] = useState<boolean>(() => probeWebGL())

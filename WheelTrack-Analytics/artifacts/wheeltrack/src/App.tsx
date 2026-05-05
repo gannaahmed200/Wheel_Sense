@@ -9,6 +9,7 @@ import Home from './pages/Home'
 import Configure from './pages/Configure'
 import Dashboard from './pages/Dashboard'
 import History from './pages/History'
+import { AnalysisProvider } from './contexts/AnalysisContext'
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
@@ -38,13 +39,15 @@ export default function App() {
 
   return (
     <BrowserRouter basename={base}>
-      <CustomCursor />
-      {loading ? <PageLoader /> : (
-        <>
-          <Navbar />
-          <AnimatedRoutes />
-        </>
-      )}
+      <AnalysisProvider>
+        <CustomCursor />
+        {loading ? <PageLoader /> : (
+          <>
+            <Navbar />
+            <AnimatedRoutes />
+          </>
+        )}
+      </AnalysisProvider>
     </BrowserRouter>
   )
 }

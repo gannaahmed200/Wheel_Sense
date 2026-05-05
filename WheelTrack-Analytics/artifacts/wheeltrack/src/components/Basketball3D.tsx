@@ -4,33 +4,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
-// Tell TypeScript about the model-viewer custom element
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'model-viewer': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          src?: string
-          alt?: string
-          'auto-rotate'?: boolean | string
-          'auto-rotate-delay'?: string
-          'rotation-per-second'?: string
-          'camera-controls'?: boolean | string
-          'environment-image'?: string
-          exposure?: string
-          'shadow-intensity'?: string
-          poster?: string
-          loading?: string
-          reveal?: string
-          style?: React.CSSProperties
-          ar?: boolean | string
-        },
-        HTMLElement
-      >
-    }
-  }
-}
-
 // CSS fallback basketball (shown while model loads or if WebGL is blocked)
 function CSSBasketball({ size }: { size: number }) {
   return (

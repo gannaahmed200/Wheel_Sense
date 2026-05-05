@@ -113,7 +113,7 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
 
 const links = [
   { path: '/', label: 'Home' },
-  { path: '/configure', label: 'Configure' },
+  { path: '/configure', label: 'Analyze' },
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/history', label: 'History' },
 ]

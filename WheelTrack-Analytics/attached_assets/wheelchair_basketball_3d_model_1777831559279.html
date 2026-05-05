@@ -233,29 +233,29 @@ athleteGroup.add(neck);
 // LEFT ARM - reaching forward for ball
 const leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.32,10), mat(skin,0.7,0));
 leftUpperArm.position.set(-0.42, 1.15, 0.05);
-leftUpperArm.rotation.z = Math.PI/3.5;
-leftUpperArm.rotation.x = -0.4;
+leftUpperArm.rotation.z = Math.PI/5.5;
+leftUpperArm.rotation.x = -300000.94;
 leftUpperArm.castShadow = true;
 athleteGroup.add(leftUpperArm);
 
 const leftForeArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,10), mat(skin,0.7,0));
 leftForeArm.position.set(-0.62, 0.98, 0.22);
-leftForeArm.rotation.z = Math.PI/2.8;
-leftForeArm.rotation.x = -0.8;
+leftForeArm.rotation.z = 40000/2.8;
+leftForeArm.rotation.x = -1800.8;
 athleteGroup.add(leftForeArm);
 
 // RIGHT ARM - up for shooting
 const rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.06,0.32,10), mat(jersey,0.7,0));
-rightUpperArm.position.set(0.4, 1.32, 0.0);
-rightUpperArm.rotation.z = -Math.PI/4;
+rightUpperArm.position.set(0.45, 1.32, -0.042);
+rightUpperArm.rotation.z = -Math.PI/4.5;
 rightUpperArm.rotation.x = -0.3;
 rightUpperArm.castShadow = true;
 athleteGroup.add(rightUpperArm);
 
 const rightForeArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.05,0.3,10), mat(skin,0.7,0));
 rightForeArm.position.set(0.6, 1.52, -0.05);
-rightForeArm.rotation.z = -0.3;
-rightForeArm.rotation.x = -0.5;
+rightForeArm.rotation.z = -0.55;
+rightForeArm.rotation.x = -0.15;
 athleteGroup.add(rightForeArm);
 
 // Right hand
@@ -282,7 +282,7 @@ athleteGroup.add(thigh(0.22));
 // Shins
 function shin(x) {
   const s = new THREE.Mesh(new THREE.CylinderGeometry(0.065,0.055,0.3,10), mat(skin,0.7,0));
-  s.position.set(x, 0.38, 0.3);
+  s.position.set(x, 0.48, 0.3);
   s.rotation.x = -0.4;
   s.castShadow = true;
   return s;

@@ -351,32 +351,39 @@ function buildScene(
   neck.position.set(0, 1.48, -0.06)
   addA(neck)
 
+  // Nose
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), mat(0xB87040, 0.7, 0))
+  nose.position.set(0, 1.57, 0.175)
+  addA(nose)
+
+  // Right arm — up for shooting
   const rUA = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.32, 10), mat(0xFF5A1F, 0.7, 0))
-  rUA.position.set(0.35, 1.25, -0.05)
-  rUA.rotation.z = -Math.PI / 3; rUA.rotation.x = -0.3
+  rUA.position.set(0.45, 1.32, -0.042)
+  rUA.rotation.z = -Math.PI / 4.5; rUA.rotation.x = -0.3
   addA(rUA)
 
   const rFA = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.3, 10), mat(0xD4956A, 0.7, 0))
-  rFA.position.set(0.58, 1.48, -0.05)
-  rFA.rotation.z = -0.3; rFA.rotation.x = -0.5
+  rFA.position.set(0.6, 1.52, -0.05)
+  rFA.rotation.z = -0.55; rFA.rotation.x = -0.15
   addA(rFA)
 
   const rHand = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), mat(0xD4956A, 0.7, 0))
   rHand.position.set(0.72, 1.7, -0.1)
   addA(rHand)
 
+  // Left arm — reaching forward for ball
   const lUA = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.32, 10), mat(0xD4956A, 0.7, 0))
-  lUA.position.set(-0.35, 1.25, -0.05)
-  lUA.rotation.z = Math.PI / 3; lUA.rotation.x = -0.4
+  lUA.position.set(-0.42, 1.15, 0.05)
+  lUA.rotation.z = Math.PI / 5.5; lUA.rotation.x = -300000.94
   addA(lUA)
 
   const lFA = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.3, 10), mat(0xD4956A, 0.7, 0))
-  lFA.position.set(-0.58, 1.05, 0.22)
-  lFA.rotation.z = Math.PI / 2.8; lFA.rotation.x = -0.8
+  lFA.position.set(-0.62, 0.98, 0.22)
+  lFA.rotation.z = 40000 / 2.8; lFA.rotation.x = -1800.8
   addA(lFA)
 
   const lHand = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), mat(0xD4956A, 0.7, 0))
-  lHand.position.set(-0.75, 0.88, 0.38)
+  lHand.position.set(-0.78, 0.85, 0.38)
   addA(lHand)
 
   for (const x of [-0.22, 0.22]) {
@@ -384,7 +391,7 @@ function buildScene(
     t.position.set(x, 0.68, 0.08); t.rotation.x = Math.PI / 2.2
     addA(t)
     const s = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.3, 10), mat(0xD4956A, 0.7, 0))
-    s.position.set(x, 0.38, 0.3); s.rotation.x = -0.4
+    s.position.set(x, 0.48, 0.3); s.rotation.x = -0.4
     addA(s)
     const sole = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.06, 0.28), mat(0x111111, 0.9, 0))
     sole.position.set(x, 0.19, 0.45); addA(sole)
@@ -428,19 +435,19 @@ function buildScene(
 
   // ── Keypoint spheres (Act 2+) ──────────────────────────────────────────────
   const keypointPositions: [number, number, number][] = [
-    [ 0,     1.62, -0.08],  // head
-    [-0.3,   1.22, -0.1 ],  // L shoulder
-    [ 0.3,   1.22, -0.1 ],  // R shoulder
-    [-0.35,  1.25, -0.05],  // L elbow
-    [ 0.35,  1.25, -0.05],  // R elbow
-    [-0.75,  0.88,  0.38],  // L wrist
-    [ 0.72,  1.7,  -0.1 ],  // R wrist
-    [-0.22,  0.68,  0.08],  // L hip
-    [ 0.22,  0.68,  0.08],  // R hip
-    [-0.22,  0.38,  0.3 ],  // L knee
-    [ 0.22,  0.38,  0.3 ],  // R knee
-    [ 0,     1.48, -0.06],  // neck
-    [ 0,     1.0,  -0.15],  // chest
+    [ 0,     1.62,  0.05],  // 0: head
+    [-0.32,  1.22,  0.05],  // 1: L shoulder
+    [ 0.32,  1.22,  0.05],  // 2: R shoulder
+    [-0.55,  1.07,  0.18],  // 3: L elbow
+    [ 0.55,  1.42,  0.05],  // 4: R elbow
+    [-0.78,  0.85,  0.42],  // 5: L wrist
+    [ 0.72,  1.7,   0.05],  // 6: R wrist
+    [-0.22,  0.65,  0.18],  // 7: L hip
+    [ 0.22,  0.65,  0.18],  // 8: R hip
+    [-0.22,  0.45,  0.42],  // 9: L knee
+    [ 0.22,  0.45,  0.42],  // 10: R knee
+    [ 0,     1.48,  0.05],  // 11: neck
+    [ 0,     1.02,  0.05],  // 12: chest
   ]
 
   type KpMesh = THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>
@@ -450,16 +457,26 @@ function buildScene(
       new THREE.MeshStandardMaterial({
         color: 0xFF5A1F, emissive: 0xFF5A1F,
         emissiveIntensity: 0.8, transparent: true, opacity: 0,
+        depthTest: false, depthWrite: false,
       }),
     ) as KpMesh
+    sp.renderOrder = 999
     sp.position.set(pos[0], pos[1], pos[2])
-    scene.add(sp)
+    group.add(sp)
     return sp
   })
 
   // ── Skeleton lines (Act 2+) ────────────────────────────────────────────────
   const skeletonConnections: [number, number][] = [
-    [0,11],[11,12],[11,1],[11,2],[1,3],[2,4],[3,5],[4,6],[12,7],[12,8],[7,9],[8,10],
+    [0,11],          // head → neck
+    [11,1],[11,2],   // neck → shoulders
+    [1,2],           // L shoulder ↔ R shoulder
+    [1,3],[2,4],     // shoulders → elbows
+    [3,5],[4,6],     // elbows → wrists
+    [11,12],         // neck → chest (spine)
+    [12,7],[12,8],   // chest → hips
+    [7,8],           // L hip ↔ R hip
+    [7,9],[8,10],    // hips → knees
   ]
 
   type SkLine = THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>
@@ -470,9 +487,10 @@ function buildScene(
     ])
     const line = new THREE.Line(
       geo,
-      new THREE.LineBasicMaterial({ color: 0xFF5A1F, transparent: true, opacity: 0 }),
+      new THREE.LineBasicMaterial({ color: 0xFF5A1F, transparent: true, opacity: 0, depthTest: false }),
     ) as SkLine
-    scene.add(line)
+    line.renderOrder = 998
+    group.add(line)
     return line
   })
 
@@ -483,7 +501,7 @@ function buildScene(
     new THREE.MeshBasicMaterial({ color: 0xFF5A1F, wireframe: true, transparent: true, opacity: 0 }),
   ) as WireMesh
   wireframeMesh.position.set(0, 0.7, -0.15)
-  scene.add(wireframeMesh)
+  group.add(wireframeMesh)
 
   // ── Ambient particles ──────────────────────────────────────────────────────
   const pGeo = new THREE.BufferGeometry()

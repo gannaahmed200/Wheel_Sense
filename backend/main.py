@@ -28,7 +28,7 @@ MODEL_OPTIONS = {
         "path": ROOT / "yolo11n-pose.pt",
     },
 }
-DEFAULT_MODEL_KEY = "fine_tuned_yolo"
+DEFAULT_MODEL_KEY = "original_yolo"
 engines: dict[str, PoseEngine] = {
     DEFAULT_MODEL_KEY: PoseEngine(MODEL_OPTIONS[DEFAULT_MODEL_KEY]["path"])
 }

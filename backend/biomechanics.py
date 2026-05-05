@@ -5,6 +5,28 @@ from dataclasses import dataclass
 from statistics import mean, pstdev
 from typing import Any
 
+# Stage 3 — import the kinematics engine and masking utilities
+from kinematics import (
+    calculate_trunk_rotation,
+    PushStrokeAnalyzer,
+    VelocityEstimator,
+    KinematicsMetrics,
+)
+from masking import build_wheelchair_mask, apply_mask
+
+# One global PushStrokeAnalyzer and VelocityEstimator shared across frames.
+# They maintain per-session state (wrist history, optical-flow points).
+# pose_engine.py resets these when a new video is uploaded.
+_stroke_analyzer: PushStrokeAnalyzer | None = None
+_velocity_estimator: VelocityEstimator | None = None
+
+
+def init_stage3_analyzers(fps: float = 30.0) -> None:
+    """Create fresh Stage 3 analysers for a new video session."""
+    global _stroke_analyzer, _velocity_estimator
+    _stroke_analyzer    = PushStrokeAnalyzer(fps=fps)
+    _velocity_estimator = VelocityEstimator(fps=fps)
+
 
 COCO_NAMES = [
     "nose",
@@ -99,6 +121,9 @@ def compute_frame_metrics(
             "classification": "complete",
             "confidence": 0,
             "courtPosition": {"x": 0.5, "y": 0.5},
+            "trunkRotation": 0,
+            "pushEfficiency": 0,
+            "strokeEvent": "",
         }
 
     person = people[0]
@@ -146,6 +171,18 @@ def compute_frame_metrics(
     confidence = float(person.get("confidence", 0))
     classification = _classify(elbow, shoulder, trunk, thresholds)
 
+    # ── Stage 3: Cross-product trunk rotation ────────────────────────────
+    trunk_rotation = calculate_trunk_rotation(keypoints)
+    trunk_rotation_deg = round(trunk_rotation, 2) if trunk_rotation is not None else 0.0
+
+    # ── Stage 3: Push-stroke efficiency (velocity × angle) ───────────────
+    push_efficiency = 0.0
+    stroke_event = ""
+    if _stroke_analyzer is not None:
+        stroke_data = _stroke_analyzer.update(keypoints)
+        push_efficiency = round(stroke_data["efficiency"], 3)
+        stroke_event = stroke_data["stroke_event"]
+
     return {
         "elbow": round(elbow, 2),
         "shoulder": round(shoulder, 2),
@@ -160,6 +197,9 @@ def compute_frame_metrics(
         "classification": classification,
         "confidence": round(confidence * 100 if confidence <= 1 else confidence, 2),
         "courtPosition": {"x": min(1, max(0, hip_mid[0])), "y": min(1, max(0, hip_mid[1]))},
+        "trunkRotation": trunk_rotation_deg,
+        "pushEfficiency": push_efficiency,
+        "strokeEvent": stroke_event,
     }
 
 
